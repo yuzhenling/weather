@@ -24,6 +24,7 @@ const handleSelect = (key) => {
       >
         <el-menu-item index="/">首页</el-menu-item>
         <el-menu-item index="/weather-data">天气数据查询</el-menu-item>
+        <el-menu-item index="/weather-trend">天气趋势图</el-menu-item>
         <el-menu-item index="/cities">城市管理</el-menu-item>
         <el-menu-item index="/users">用户管理</el-menu-item>
       </el-menu>

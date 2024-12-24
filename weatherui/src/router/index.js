@@ -24,7 +24,7 @@ const routes = [
   {
     path: '/weather-trend',
     name: 'WeatherTrend',
-    component: () => import('../views/weather/WeatherTrend.vue')
+    component: () => import('../views/charts/WeatherTrend.vue')
   }
 ]
 
