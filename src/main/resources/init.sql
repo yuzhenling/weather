@@ -56,3 +56,70 @@ INSERT INTO weather_data (city_id, date, temperature, humidity, weather, wind_di
 (1, CURRENT_DATE, 20.5, 65, '晴', '东北风', 3.2),
 (2, CURRENT_DATE, 22.0, 70, '多云', '东风', 2.8),
 (3, CURRENT_DATE, 25.5, 75, '阴', '南风', 2.5);
+
+
+
+
+
+
+DELIMITER //
+CREATE PROCEDURE weather_db.insert_test_weather_data()
+BEGIN
+    DECLARE i INT DEFAULT 0;
+    DECLARE city_id INT;
+    DECLARE cur_date DATE;
+    
+    -- 遍历城市
+    DECLARE city_cursor CURSOR FOR SELECT id FROM cities;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET i = -1;
+    
+    OPEN city_cursor;
+    
+    city_loop: LOOP
+        FETCH city_cursor INTO city_id;
+        IF i = -1 THEN
+            LEAVE city_loop;
+        END IF;
+        
+        -- 插入近7天的数据
+        SET i = 0;
+        WHILE i < 7 DO
+            SET cur_date = DATE_SUB(CURDATE(), INTERVAL i DAY);
+            
+            -- 生成随机天气数据
+            INSERT INTO weather_data (
+                city_id, 
+                date, 
+                temperature, 
+                humidity, 
+                weather, 
+                wind_direction, 
+                wind_speed
+            ) VALUES (
+                city_id,
+                cur_date,
+                15 + RAND() * 15, -- 温度范围：15-30度
+                50 + RAND() * 40, -- 湿度范围：50-90%
+                ELT(FLOOR(1 + RAND() * 4), '晴', '多云', '阴', '小雨'),
+                ELT(FLOOR(1 + RAND() * 4), '东风', '南风', '西风', '北风'),
+                2 + RAND() * 5    -- 风速范围：2-7米/秒
+            ) ON DUPLICATE KEY UPDATE
+                temperature = VALUES(temperature),
+                humidity = VALUES(humidity),
+                weather = VALUES(weather),
+                wind_direction = VALUES(wind_direction),
+                wind_speed = VALUES(wind_speed);
+            
+            SET i = i + 1;
+        END WHILE;
+    END LOOP;
+    
+    CLOSE city_cursor;
+END //
+DELIMITER ;
+
+
+CALL weather_db.insert_test_weather_data();
+
+
+DROP PROCEDURE IF EXISTS insert_test_weather_data;
